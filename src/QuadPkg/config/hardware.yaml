@@ -1,0 +1,64 @@
+# Parameters for hardware_bridge (QuadPkg/hardware/bridge.py) -- REAL ROBOT ONLY.
+# servo_tool (`ros2 run QuadPkg servo_tool ...`) reads this file too.
+#
+#   Jetson/laptop --USB serial--> ESP32 (firmware/esp32_servo_bridge) --servo bus--> 12 x ST3215
+#
+# ticks = 2048 + offset_ticks + direction * gear_ratio * joint_angle / (2*pi/4096)
+#
+#   joint angle 0  = robot STANDING  (URDF was re-zeroed for this)
+#   tick 2048      = servo middle    (you set it in the Waveshare web app, robot standing)
+#   -> with perfect calibration offset_ticks = 0.  1 tick = 0.088 deg.
+#
+# Index i in EVERY list below belongs to joint_order[i].
+# Lists of whole numbers (servo_id, offset_ticks) must stay whole numbers (no ".0"),
+# lists of decimals (direction, gear_ratio) must keep the ".0" -- ROS 2 is strict about types.
+hardware_bridge:
+  ros__parameters:
+    # ---------------- connection ----------------
+    port: "/dev/ttyUSB0"       # ESP32 USB port. Check with:  ls /dev/ttyUSB* /dev/ttyACM*
+    baud: 921600               # must match HOST_BAUD in the firmware
+    feedback_hz: 50            # how often the ESP32 reads all 12 servos
+    watchdog_ms: 500           # ESP32: if the Jetson goes silent this long...
+    watchdog_torque_off: false # ...false = hold last pose (robot keeps standing), true = go limp
+
+    # ---------------- servo mapping ----------------
+    joint_order: [FL_HipRoll, FL_ThighP, FL_KneeP,
+                  FR_HipRoll, FR_ThighP, FR_KneeP,
+                  BL_HipRoll, BL_ThighP, BL_KneeP,
+                  BR_HipRoll, BR_ThighP, BR_KneeP]
+    # Your wiring: ID 1,2,3 = FL knee, thigh, hip | 4,5,6 = FR knee, thigh, hip | 7,8,9 = BL | 10,11,12 = BR
+    #           hip thigh knee
+    servo_id:   [3,  2,  1,          # FL
+                 6,  5,  4,          # FR
+                 9,  8,  7,          # BL
+                 12, 11, 10]         # BR
+    # +1 / -1. Find with:  ros2 run QuadPkg servo_tool jog <joint> 10
+    direction:  [1.0, 1.0, 1.0,  1.0, -1.0, -1.0,  -1.0, 1.0, 1.0,  -1.0, -1.0, -1.0]
+    # Measured with:  ros2 run QuadPkg servo_tool calib --write <this file>
+    offset_ticks: [73, -28, -20,  -15, -4, -45,  6, 83, 7,  -26, -120, -45]
+    gear_ratio: [1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 1.0]
+    tick_min: 0                # hard limits for any tick ever sent (servo range 0..4095)
+    tick_max: 4095
+
+    # ---------------- motion safety ----------------
+    rate_hz: 50.0              # how often targets are sent to the ESP32
+    max_velocity: 8.0          # rad/s slew limit per joint while running
+    enable_velocity: 0.6       # rad/s slew limit for the first seconds after enabling
+    enable_ramp_time: 4.0      # s
+    servo_speed: 0             # ST3215 goal speed register (0 = servo max; Jetson already smooths)
+    servo_acc: 0               # ST3215 acceleration register (0 = servo max)
+    auto_enable: false         # true = torque on as soon as the node starts. Keep false until calibrated!
+    torque_off_on_exit: false  # Ctrl-C: false = robot keeps holding its pose, true = goes limp
+
+    # ---------------- health warnings ----------------
+    max_temp_c: 65             # warn above this servo temperature
+    min_voltage: 10.5          # warn below this (3S LiPo ~ 11.1 V nominal; ST3215 runs on 6-12.6 V)
+
+    # ---------------- debug topics (for viewing only) ----------------
+    # /debug/servo_command  = what is SENT to each servo   (controller wish -> limits -> slew -> ticks)
+    # /debug/servo_feedback = what each servo SENDS BACK   (ticks, angle, error, load, temp, volts)
+    # /debug/joint_sent     = sent angles as JointState    (plot against /joint_states)
+    # Read them with:  ros2 run QuadPkg servo_monitor
+    debug_topics: true
+    debug_rate_hz: 10.0          # 10 Hz is readable; 50.0 = every control tick (for plotting/bags)
+    debug_error_warn_deg: 5.0    # feedback WARN when |sent - measured| is bigger than this

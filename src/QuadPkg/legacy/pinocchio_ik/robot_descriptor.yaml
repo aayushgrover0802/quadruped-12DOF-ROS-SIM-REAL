@@ -1,0 +1,111 @@
+robot_name: QuadURDFcad4_0
+urdf_path: /home/nikunj/Desktop/workspace/parser/QuadURDFcad4_0.urdf
+legs:
+  BL:
+    joints:
+    - BL_HipRoll
+    - BL_ThighP
+    - BL_KneeP
+    foot_frame: BL_Foot
+    link_lengths_mm:
+      hip_offset_mm: 108.00954818903743
+      L1_thigh_mm: 133.37397424160383
+      L2_shank_mm: 136.19620846778372
+    joint_limits:
+      BL_HipRoll:
+        lower: -0.8
+        upper: 0.8
+        effort: 100.0
+        velocity: 10.0
+      BL_ThighP:
+        lower: -1.57
+        upper: 1.57
+        effort: 100.0
+        velocity: 10.0
+      BL_KneeP:
+        lower: -2.7
+        upper: 2.7
+        effort: 100.0
+        velocity: 10.0
+    topology: general
+  BR:
+    joints:
+    - BR_HipRoll
+    - BR_ThighP
+    - BR_KneeP
+    foot_frame: BR_Foot
+    link_lengths_mm:
+      hip_offset_mm: 108.00954818903743
+      L1_thigh_mm: 129.99989131287765
+      L2_shank_mm: 145.67740542033278
+    joint_limits:
+      BR_HipRoll:
+        lower: -0.8
+        upper: 0.8
+        effort: 100.0
+        velocity: 10.0
+      BR_ThighP:
+        lower: -1.57
+        upper: 1.57
+        effort: 100.0
+        velocity: 10.0
+      BR_KneeP:
+        lower: -2.7
+        upper: 2.7
+        effort: 100.0
+        velocity: 10.0
+    topology: general
+  FL:
+    joints:
+    - FL_HipRoll
+    - FL_ThighP
+    - FL_KneeP
+    foot_frame: FL_Foot
+    link_lengths_mm:
+      hip_offset_mm: 108.00954818903743
+      L1_thigh_mm: 130.54296082930287
+      L2_shank_mm: 135.5559018449584
+    joint_limits:
+      FL_HipRoll:
+        lower: -0.8
+        upper: 0.8
+        effort: 100.0
+        velocity: 10.0
+      FL_ThighP:
+        lower: -1.57
+        upper: 1.57
+        effort: 100.0
+        velocity: 10.0
+      FL_KneeP:
+        lower: -2.7
+        upper: 2.7
+        effort: 100.0
+        velocity: 10.0
+    topology: general
+  FR:
+    joints:
+    - FR_HipRoll
+    - FR_ThighP
+    - FR_KneeP
+    foot_frame: FR_Foot
+    link_lengths_mm:
+      hip_offset_mm: 108.00954818903743
+      L1_thigh_mm: 130.00059955050207
+      L2_shank_mm: 145.60019233847186
+    joint_limits:
+      FR_HipRoll:
+        lower: -0.8
+        upper: 0.8
+        effort: 100.0
+        velocity: 10.0
+      FR_ThighP:
+        lower: -1.57
+        upper: 1.57
+        effort: 100.0
+        velocity: 10.0
+      FR_KneeP:
+        lower: -2.7
+        upper: 2.7
+        effort: 100.0
+        velocity: 10.0
+    topology: general

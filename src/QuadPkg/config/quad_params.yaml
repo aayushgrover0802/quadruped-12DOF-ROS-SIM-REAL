@@ -1,0 +1,32 @@
+# Parameters for the quad_controller node (QuadPkg/gait/gait.py).
+# Derived from QuadURDFcad4_0.urdf + config/payload.yaml (total mass 3.84 kg)
+# and Waveshare ST3215 limits at 11.1 V (3S): stall ~2.72 Nm, no-load ~4.36 rad/s.
+# Design cap for commanded joint speed: 3.0 rad/s (~70% of no-load).
+# Every value here is a float -> always write a decimal point (0.0 not 0).
+quad_controller:
+  ros__parameters:
+    rate_hz: 50.0              # = hardware_bridge rate; gives 15 samples per swing
+    cmd_timeout: 0.5           # teleop sends at 10 Hz -> 5 missed messages before stop
+    startup_wait: 3.0          # max wait for the first /joint_states
+
+    # body pose
+    stand_height: 0.155        # = URDF zero pose: all servos at calibrated 2048
+    sit_height: 0.05           # lowest height with only the feet touching the ground (+3 cm margin)
+    stance_x_extra: 0.0        # + = feet further out sideways (wider, more stable), - = narrower [m]
+    height_transition_time: 2.5   # knee peak 0.6 rad/s = ~25% of loaded servo speed
+    startup_time: 3.0
+    start_mode: "stand"
+
+    # trot
+    gait_period: 0.85          # swing 0.30 s: body tips ~10x less than at 1.2 s
+    duty_factor: 0.65          # peak foot force 0.60*m*g (vs 0.71 at 0.55), 0.13 s 4-foot recovery
+    step_height: 0.02          # flat floors. Carpet/uneven: 0.025 AND gait_period 1.0
+    max_step_length: 0.06      # servo-speed limit is 63 mm forward at this timing
+
+    # limits
+    max_vx: 0.10               # step = 0.10 * 0.65 * 0.85 = 55 mm
+    max_vy: 0.04               # sideways servo limit is ~32 mm/step -> 0.058; must be > cmd_deadband
+    max_wz: 0.30               # foot step = 0.30 * 0.174 m * 0.5525 s = 29 mm
+    max_lin_accel: 0.3         # ZMP shift = a*h_com/g = 6 mm < 10 mm foot radius
+    max_ang_accel: 1.5         # = max_lin_accel / 0.174 m foot radius from centre (1.7), rounded down
+    cmd_deadband: 0.02         # step below ~5 mm is lost in servo sag; 0.02 m/s = 11 mm

@@ -1,0 +1,55 @@
+# ============================================================================
+#  payload.yaml -- extra things bolted onto the robot body (base_link)
+# ============================================================================
+# The URDF only knows the hollow 3D-printed body + legs (~1.84 kg).
+# Everything listed here is added on top, as a solid box fixed to base_link.
+#
+# Who reads this file?
+#   * quad_controller  -> recomputes the centre of mass, so the feet are
+#                         re-centred under the (new) COM automatically.
+#   * export_urdf      -> writes a full URDF (robot + payload) for Isaac Sim.
+#
+# HOW TO ADD SOMETHING (e.g. a lidar later):
+#   1. copy one block below, give it a new name, set mass / xyz / size
+#   2. colcon build --packages-select QuadPkg   (installs the new file)
+#   3. Isaac Sim only: ros2 run QuadPkg export_urdf  -> re-import that URDF
+#   To remove an item temporarily, set `enabled: false`.
+#
+# Coordinates are base_link frame, metres:   +X = right, +Y = forward, +Z = up
+#   body shell spans roughly  X -0.099..+0.099,  Y -0.170..+0.190,  Z -0.005..+0.080
+#   hip joints sit at         X +-0.071,         Y +-0.075,         Z  0.032
+#   so (0, 0, z) is the middle of the body, exactly between the 4 hips.
+#
+# mass : kg
+# xyz  : centre of the item
+# size : outer box [x, y, z] in metres -- only used for the inertia (how hard
+#        it is to rotate) and the grey box you see in Isaac. A rough guess is fine.
+# ============================================================================
+
+payload:
+
+  - name: battery
+    enabled: true
+    mass: 0.65                 # you said 600-700 g
+    xyz: [0.0, 0.0, 0.020]     # lying flat on the floor of the body, centred
+    size: [0.045, 0.140, 0.035]
+
+  - name: jetson
+    enabled: true
+    mass: 0.65                 # you said 600-700 g (board + carrier + heatsink/fan)
+    xyz: [0.0, 0.0, 0.060]     # sitting above the battery, centred
+    size: [0.080, 0.100, 0.035]
+
+  - name: wiring_buffer
+    enabled: true
+    mass: 0.70                 # wires, connectors, ESP32 board, screws, safety margin
+    xyz: [0.0, 0.0, 0.040]     # spread through the whole body
+    size: [0.180, 0.300, 0.070]
+                               # 0.65 + 0.65 + 0.70 = 2.00 kg total
+
+  # ---- example for later: uncomment, adjust, rebuild ------------------------
+  # - name: lidar
+  #   enabled: true
+  #   mass: 0.17               # e.g. RPLidar A1 is about 170 g
+  #   xyz: [0.0, 0.08, 0.100]  # on top of the body, a bit forward
+  #   size: [0.07, 0.10, 0.06]

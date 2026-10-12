@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="QuadURDFcad4_0">
+  <!-- 2026-10: FL_Hip / BL_Hip inertials fixed (BL_Hip had mass 0 from the CAD export,
+       FL_Hip was 0.172 kg vs 0.103 kg on the other three). Both now mirror FR_Hip. -->
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-2.0613E-05 0.025429 0.033007"
+        rpy="0 0 0" />
+      <mass
+        value="0.91665" />
+      <inertia
+        ixx="0.0033229"
+        ixy="-2.8157E-13"
+        ixz="4.4164E-08"
+        iyy="0.001526"
+        iyz="1.6054E-07"
+        izz="0.0040801" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="FR_Hip">
+    <inertial>
+      <origin
+        xyz="0.018742 -0.00089079 -0.037245"
+        rpy="0 0 0" />
+      <mass
+        value="0.10265" />
+      <inertia
+        ixx="4.6806E-05"
+        ixy="-6.388E-08"
+        ixz="6.1922E-09"
+        iyy="4.6337E-05"
+        iyz="1.3361E-07"
+        izz="2.9038E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Hip.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Hip.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FR_HipRoll"
+    type="revolute">
+    <origin
+      xyz="0.0712 0.07465 0.032"
+      rpy="1.5708 -0.046312 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="FR_Hip" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.8"
+      upper="0.8"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="FR_Thigh">
+    <inertial>
+      <origin
+        xyz="0.028867 -0.024807 0.036263"
+        rpy="0 0 0" />
+      <mass
+        value="0.07387" />
+      <inertia
+        ixx="0.000113"
+        ixy="-1.8435E-07"
+        ixz="9.6654E-08"
+        iyy="7.9371E-05"
+        iyz="4.7906E-05"
+        izz="3.6339E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Thigh.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Thigh.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FR_ThighP"
+    type="revolute">
+    <origin
+      xyz="0.028394 0.013199 -0.0275"
+      rpy="0.34751 -0.015782 -0.0027702" />
+    <parent
+      link="FR_Hip" />
+    <child
+      link="FR_Thigh" />
+    <axis
+      xyz="0.99893 -0.046295 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="FR_Knee">
+    <inertial>
+      <origin
+        xyz="0.032646 -0.021314 -0.059579"
+        rpy="0 0 0" />
+      <mass
+        value="0.052932" />
+      <inertia
+        ixx="9.0349E-05"
+        ixy="6.7954E-07"
+        ixz="1.9273E-06"
+        iyy="8.5052E-05"
+        iyz="-2.4711E-05"
+        izz="1.3096E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Knee.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Knee.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FR_KneeP"
+    type="revolute">
+    <origin
+      xyz="-0.0026643 -0.060317 0.11513"
+      rpy="-0.65333 0.028163 -0.0095421" />
+    <parent
+      link="FR_Thigh" />
+    <child
+      link="FR_Knee" />
+    <axis
+      xyz="0.99893 -0.046295 0" />
+    <limit
+      lower="-2.7"
+      upper="2.7"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="FR_Foot">
+    <inertial>
+      <origin
+        xyz="6.8834E-13 0.0072096 4.839E-12"
+        rpy="0 0 0" />
+      <mass
+        value="0.0020924" />
+      <inertia
+        ixx="6.1241E-08"
+        ixy="5.8678E-17"
+        ixz="-5.9486E-18"
+        iyy="1.0413E-07"
+        iyz="1.1962E-17"
+        izz="6.1241E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Foot.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FR_Foot.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FR_FixedFoot"
+    type="fixed">
+    <origin
+      xyz="0.032228 -0.046955 -0.134"
+      rpy="-0.57637 0.67632 2.7089" />
+    <parent
+      link="FR_Knee" />
+    <child
+      link="FR_Foot" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="FL_Hip">
+    <inertial>
+      <origin
+        xyz="-0.018742 -0.00089079 -0.037245"
+        rpy="0 0 0" />
+      <mass
+        value="0.10265" />
+      <inertia
+        ixx="4.6806E-05"
+        ixy="6.388E-08"
+        ixz="-6.1922E-09"
+        iyy="4.6337E-05"
+        iyz="1.3361E-07"
+        izz="2.9038E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Hip.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Hip.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FL_HipRoll"
+    type="revolute">
+    <origin
+      xyz="-0.0712 0.07465 0.032"
+      rpy="1.5708 -0.29317 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="FL_Hip" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.8"
+      upper="0.8"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="FL_Thigh">
+    <inertial>
+      <origin
+        xyz="-0.0260259605743596 -0.00338845809713966 0.04316447009552"
+        rpy="0 0 0" />
+      <mass
+        value="0.0738699894705602" />
+      <inertia
+        ixx="0.00011268013818453"
+        ixy="-7.92023988595693E-07"
+        ixz="3.2542649612131E-06"
+        iyy="0.000110547518113796"
+        iyz="2.04285472598613E-06"
+        izz="5.47758935427018E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Thigh.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Thigh.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FL_ThighP"
+    type="revolute">
+    <origin
+      xyz="-0.026043 0.02927 -0.020036"
+      rpy="0.87278 -0.22727 -0.10635" />
+    <parent
+      link="FL_Hip" />
+    <child
+      link="FL_Thigh" />
+    <axis
+      xyz="0.95733 -0.28899 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="FL_Knee">
+    <inertial>
+      <origin
+        xyz="-0.0433866184082816 -0.0380067135388353 -0.0187554443012353"
+        rpy="0 0 0" />
+      <mass
+        value="0.052931885613327" />
+      <inertia
+        ixx="8.25131046424824E-05"
+        ixy="-2.27367995529977E-05"
+        ixz="-9.68321588698199E-06"
+        iyy="2.48123765354961E-05"
+        iyz="-2.79606972048559E-05"
+        izz="8.11711074631011E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Knee.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Knee.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FL_KneeP"
+    type="revolute">
+    <origin
+      xyz="-0.00063197 -0.012094 0.12998"
+      rpy="-0.28927 0.085899 -0.012519" />
+    <parent
+      link="FL_Thigh" />
+    <child
+      link="FL_Knee" />
+    <axis
+      xyz="0.95733 -0.28899 0" />
+    <limit
+      lower="-2.7"
+      upper="2.7"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="FL_Foot">
+    <inertial>
+      <origin
+        xyz="9.57497969800158E-13 0.00607941032363163 4.56151783012615E-12"
+        rpy="0 0 0" />
+      <mass
+        value="0.00209238279090247" />
+      <inertia
+        ixx="6.12405525754502E-08"
+        ixy="3.86474506888219E-17"
+        ixz="-5.41015550888964E-18"
+        iyy="1.04133282630352E-07"
+        iyz="9.31030095573533E-18"
+        izz="6.12405525999941E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Foot.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/FL_Foot.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FL_FixedFoot"
+    type="fixed">
+    <origin
+      xyz="-0.065885 -0.10978 -0.04453"
+      rpy="1.5708 1.111 -1.864" />
+    <parent
+      link="FL_Knee" />
+    <child
+      link="FL_Foot" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="BR_Hip">
+    <inertial>
+      <origin
+        xyz="0.0187421369497242 -0.000890794993457733 0.0372446758134174"
+        rpy="0 0 0" />
+      <mass
+        value="0.102649597706034" />
+      <inertia
+        ixx="4.68060945087987E-05"
+        ixy="-6.38800472159297E-08"
+        ixz="6.19222478128402E-09"
+        iyy="4.63365511378159E-05"
+        iyz="1.33610213967634E-07"
+        izz="2.9038421287295E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Hip.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Hip.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BR_HipRoll"
+    type="revolute">
+    <origin
+      xyz="0.0712 -0.07465 0.032"
+      rpy="1.5708 -0.046312 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="BR_Hip" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.8"
+      upper="0.8"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="BR_Thigh">
+    <inertial>
+      <origin
+        xyz="0.028370145775199 -0.0352671862538255 0.0267263808727637"
+        rpy="0 0 0" />
+      <mass
+        value="0.0738699894705602" />
+      <inertia
+        ixx="0.000112979472667595"
+        ixy="-1.13822228967576E-06"
+        ixz="8.00683043038441E-07"
+        iyy="4.5570875479595E-05"
+        iyz="5.10475465444886E-05"
+        izz="7.01548975054064E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Thigh.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Thigh.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BR_ThighP"
+    type="revolute">
+    <origin
+      xyz="0.028406 0.013199 0.0475"
+      rpy="0.018342 -0.00084999 0" />
+    <parent
+      link="BR_Hip" />
+    <child
+      link="BR_Thigh" />
+    <axis
+      xyz="0.99893 -0.046295 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="BR_Knee">
+    <inertial>
+      <origin
+        xyz="0.034047303079851 0.00635017845747216 -0.0622754415794301"
+        rpy="0 0 0" />
+      <mass
+        value="0.0529318847832179" />
+      <inertia
+        ixx="9.02302778456741E-05"
+        ixy="-4.67479236705131E-07"
+        ixz="3.74944322493672E-06"
+        iyy="9.08848554221293E-05"
+        iyz="1.25153969678517E-05"
+        izz="7.38145374074031E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Knee.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Knee.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BR_KneeP"
+    type="revolute">
+    <origin
+      xyz="-0.0043694 -0.094278 0.089401"
+      rpy="-0.77085 0.03228 -0.013097" />
+    <parent
+      link="BR_Thigh" />
+    <child
+      link="BR_Knee" />
+    <axis
+      xyz="0.99893 -0.046295 0" />
+    <limit
+      lower="-2.7"
+      upper="2.7"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="BR_Foot">
+    <inertial>
+      <origin
+        xyz="6.50465792340071E-13 0.00713995307960615 4.93266538725834E-12"
+        rpy="0 0 0" />
+      <mass
+        value="0.00209238279086661" />
+      <inertia
+        ixx="6.12405525503909E-08"
+        ixy="6.28940876821024E-17"
+        ixz="-5.82978697753898E-18"
+        iyy="1.04133282650521E-07"
+        iyz="1.07692993141218E-17"
+        izz="6.1240552577677E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Foot.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BR_Foot.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BR_FixedFoot"
+    type="fixed">
+    <origin
+      xyz="0.035233 0.015319 -0.14052"
+      rpy="-0.97587 0.36183 2.6133" />
+    <parent
+      link="BR_Knee" />
+    <child
+      link="BR_Foot" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="BL_Hip">
+    <inertial>
+      <origin
+        xyz="-0.018742 -0.00089079 0.037245"
+        rpy="0 0 0" />
+      <mass
+        value="0.10265" />
+      <inertia
+        ixx="4.6806E-05"
+        ixy="6.388E-08"
+        ixz="6.1922E-09"
+        iyy="4.6337E-05"
+        iyz="-1.3361E-07"
+        izz="2.9038E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Hip.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Hip.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BL_HipRoll"
+    type="revolute">
+    <origin
+      xyz="-0.0712 -0.07465 0.032"
+      rpy="1.5708 -0.29317 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="BL_Hip" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.8"
+      upper="0.8"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="BL_Thigh">
+    <inertial>
+      <origin
+        xyz="-0.0401485517512794 -0.0123026202415094 0.0409140602523934"
+        rpy="0 0 0" />
+      <mass
+        value="0.0738699894705603" />
+      <inertia
+        ixx="0.000111382207391609"
+        ixy="-4.3536792037388E-06"
+        ixz="1.14816806600571E-05"
+        iyy="0.000101193552166053"
+        iyz="2.97531041355298E-05"
+        izz="1.61294860949336E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Thigh.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Thigh.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BL_ThighP"
+    type="revolute">
+    <origin
+      xyz="-0.015009 0.027951 0.052876"
+      rpy="0.57621 -0.16301 -0.048407" />
+    <parent
+      link="BL_Hip" />
+    <child
+      link="BL_Thigh" />
+    <axis
+      xyz="0.95733 -0.28899 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="BL_Knee">
+    <inertial>
+      <origin
+        xyz="-0.0483926060483983 -0.0264527089086648 0.0318139855150891"
+        rpy="0 0 0" />
+      <mass
+        value="0.0533765936947715" />
+      <inertia
+        ixx="8.46523120191437E-05"
+        ixy="-1.61137893245953E-05"
+        ixz="1.4197102579737E-05"
+        iyy="4.52352455846829E-05"
+        iyz="4.0167791508092E-05"
+        izz="5.86830737602521E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Knee.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Knee.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BL_KneeP"
+    type="revolute">
+    <origin
+      xyz="-0.014779 -0.048958 0.12318"
+      rpy="1.0249 -0.2525 -0.14258" />
+    <parent
+      link="BL_Thigh" />
+    <child
+      link="BL_Knee" />
+    <axis
+      xyz="0.95733 -0.28899 0" />
+    <limit
+      lower="-2.7"
+      upper="2.7"
+      effort="100"
+      velocity="10" />
+  </joint>
+  <link
+    name="BL_Foot">
+    <inertial>
+      <origin
+        xyz="9.85850290291523E-13 0.0062325257086501 4.54761228674272E-12"
+        rpy="0 0 0" />
+      <mass
+        value="0.00209238279090277" />
+      <inertia
+        ixx="6.12405525768046E-08"
+        ixy="3.73962432322038E-17"
+        ixz="-5.28707915431692E-18"
+        iyy="1.0413328262934E-07"
+        iyz="8.49207274212457E-18"
+        izz="6.12405526005899E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Foot.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./meshes/BL_Foot.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BL_FixedFoot"
+    type="fixed">
+    <origin
+      xyz="-0.066486 -0.083899 0.084202"
+      rpy="1.5745 0.063287 -1.8061" />
+    <parent
+      link="BL_Knee" />
+    <child
+      link="BL_Foot" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>
