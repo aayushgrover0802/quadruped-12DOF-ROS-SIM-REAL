@@ -49,7 +49,11 @@ def build_table(view, ctrl, cmd, fb, meas, header_lines=(), err_warn=5.0, max_te
     for j in joints:
         c, f = cmd.get(j, {}), fb.get(j, {})
         sid = (c.get("_hw") or f.get("_hw") or "").replace("servo id ", "")
-        ctrl_deg = math.degrees(ctrl[j]) if j in ctrl else None
+        # prefer the bridge's own snapshot (same instant as sent/ticks); /joint_command
+        # arrives at a different moment and would look "different" from sent for no reason
+        ctrl_deg = _num(c.get("controller_target_deg"))
+        if ctrl_deg is None and j in ctrl:
+            ctrl_deg = math.degrees(ctrl[j])
         meas_deg = _num(f.get("angle_deg"))
         if meas_deg is None and j in meas:                 # Isaac: no bridge, use /joint_states
             meas_deg = math.degrees(meas[j])

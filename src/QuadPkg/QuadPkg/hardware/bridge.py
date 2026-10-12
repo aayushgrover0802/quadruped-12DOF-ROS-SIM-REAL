@@ -130,6 +130,7 @@ class HardwareBridge(Node):
         self.dbg_slewed = None        # bool per joint: slew limiter cut the step this tick
         self.dbg_ticks = None         # ticks actually sent
         self.dbg_vmax = 0.0
+        self.dbg_target = None        # /joint_command value used in the last tick
 
         # ---------- ROS ----------
         self.js_pub = self.create_publisher(JointState, "/joint_states", 10)
@@ -224,6 +225,7 @@ class HardwareBridge(Node):
         ticks = self.map.joint_to_ticks(self.sent)
         self.link.set_targets(ticks.tolist(), int(self.P("servo_speed")), int(self.P("servo_acc")))
         self.dbg_goal, self.dbg_ticks, self.dbg_vmax = goal, ticks, vmax
+        self.dbg_target = self.target.copy()     # the exact target this tick used
         self.dbg_slewed = np.abs(want - step) > 1e-9
 
     def health(self):
@@ -265,9 +267,12 @@ class HardwareBridge(Node):
         sending = self.enabled and self.target is not None and self.sent is not None
         for i, j in enumerate(self.order):
             st = DiagnosticStatus(name=j, hardware_id=f"servo id {self.map.ids[i]}")
-            ctrl = "none" if self.target is None else f"{deg(self.target[i]):+.2f}"
-            if sending and self.dbg_ticks is not None:
-                clamped = abs(self.dbg_goal[i] - self.target[i]) > 1e-6
+            # use the SAME snapshot the last tick used (the callback may have updated
+            # self.target since then -- comparing those would show fake LIM flags)
+            tgt = self.dbg_target if (sending and self.dbg_target is not None) else self.target
+            ctrl = "none" if tgt is None else f"{deg(tgt[i]):+.2f}"
+            if sending and self.dbg_ticks is not None and self.dbg_target is not None:
+                clamped = abs(self.dbg_goal[i] - self.dbg_target[i]) > 1e-6
                 slewed = bool(self.dbg_slewed[i])
                 st.level = WARN if clamped else OK
                 st.message = (f"sent {deg(self.sent[i]):+.2f} deg = {int(self.dbg_ticks[i])} ticks"

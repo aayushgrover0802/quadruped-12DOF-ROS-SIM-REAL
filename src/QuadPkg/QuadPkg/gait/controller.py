@@ -49,6 +49,11 @@ class GaitParams:
     max_ang_accel: float = 2.0    # [rad/s^2]
     cmd_deadband: float = 0.01    # commands smaller than this count as "stop"
 
+    # --- real-robot latency compensation ---------------------------------
+    # [s] output the trot this far AHEAD in time so slow servos arrive on time.
+    # 0 in sim; ~0.04-0.08 on the real robot (set by robot.launch.py command_lead:=...).
+    command_lead: float = 0.0
+
 
 def smoothstep(s):
     """0 -> 1 S-curve with zero slope at both ends (no jerks)."""
@@ -195,10 +200,12 @@ class GaitController:
         offsets = None
         if self.state == self.WALK:
             self.phase = (self.phase + dt / p.gait_period) % 1.0
-            if not moving_cmd and not moving_now and self._all_feet_down(self.phase):
+            # phase actually sent out = gait clock + lead (compensates servo lag on hardware)
+            out_phase = (self.phase + max(0.0, p.command_lead) / p.gait_period) % 1.0
+            if not moving_cmd and not moving_now and self._all_feet_down(out_phase):
                 self.state = self.STAND          # stop only when all 4 feet are on the ground
             else:
-                offsets = self._trot_offsets()
+                offsets = self._trot_offsets(out_phase)
 
         # ---- 4. inverse kinematics --------------------------------------------
         angles, bad = self.kin.solve(self._foot_targets(self.height, offsets))
@@ -212,8 +219,9 @@ class GaitController:
         beta = self.p.duty_factor
         return all(((phase + off) % 1.0) < beta for off in self.p.phase_offsets.values())
 
-    def _trot_offsets(self):
+    def _trot_offsets(self, phase=None):
         p = self.p
+        phase = self.phase if phase is None else phase
         vX, vY, wz = self.vel
         t_stance = p.duty_factor * p.gait_period
         offsets = {}
@@ -225,7 +233,7 @@ class GaitController:
             if length > p.max_step_length:
                 step *= p.max_step_length / length
 
-            leg_phase = (self.phase + off) % 1.0
+            leg_phase = (phase + off) % 1.0
             if leg_phase < p.duty_factor:
                 # STANCE: foot on ground, slides backward under the body
                 s = leg_phase / p.duty_factor

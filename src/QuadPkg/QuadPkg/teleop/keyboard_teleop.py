@@ -34,7 +34,7 @@ HELP = """
 class KeyboardTeleop(Node):
     def __init__(self):
         super().__init__("keyboard_teleop")
-        self.declare_parameter("lin_step", 0.05)   # m/s added per key press
+        self.declare_parameter("lin_step", 0.02)   # m/s added per key press
         self.declare_parameter("ang_step", 0.25)   # rad/s added per key press
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.mode_pub = self.create_publisher(String, "/quad/mode", 10)

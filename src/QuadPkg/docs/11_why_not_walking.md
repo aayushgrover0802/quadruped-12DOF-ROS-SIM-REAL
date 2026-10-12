@@ -82,6 +82,10 @@ Most common real-robot problem. In order of likelihood:
    - slower gait: `gait_period: 1.0`, `max_vx: 0.06`;
    - remove payload for a test: `ros2 launch QuadPkg robot.launch.py payload_file:=/dev/null` **and** physically take it off;
    - charged battery / 12 V.
+1b. **Servos lag behind the swing** (sim is fine, real robot jerks/limps). T2 shows knees `err°` ±10–13°
+   flipping sign every swing on every leg = the servo is ~0.1 s late. Send the trot early:
+   `ros2 launch QuadPkg robot.launch.py command_lead:=0.06` (try 0.04–0.08), and/or slow the swing:
+   `gait_period: 1.1`, `duty_factor: 0.6`.
 2. **Foot doesn't lift.** Watch one leg: in swing the foot should rise `step_height` (2 cm). If it scuffs → `step_height: 0.025–0.03`
    (costs torque), or knees sagging (point 1).
 3. **Slipping feet.** Smooth floor + hard feet → rubber feet or test on a mat.

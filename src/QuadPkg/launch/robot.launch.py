@@ -3,6 +3,7 @@
     ros2 launch QuadPkg robot.launch.py                          # bridge + controller
     ros2 launch QuadPkg robot.launch.py port:=/dev/ttyACM0       # other USB port
     ros2 launch QuadPkg robot.launch.py auto_enable:=true        # torque on at start (after calibration!)
+    ros2 launch QuadPkg robot.launch.py command_lead:=0.06       # send the trot 60 ms early (servo lag)
 
 Then, in a second terminal (same machine, or another one with the same ROS_DOMAIN_ID):
     ros2 run QuadPkg teleop          # M = motors on, T = stand, G = sit, W/A/S/D/Q/E = walk, K = limp
@@ -31,6 +32,9 @@ def _nodes(context):
     controller_params = [os.path.join(share, "config", "quad_params.yaml"), {"use_sim_time": False}]
     if payload:
         controller_params.append({"payload_file": payload})
+    lead = LaunchConfiguration("command_lead").perform(context)
+    if lead:
+        controller_params.append({"command_lead": float(lead)})
     return [
         Node(
             package="QuadPkg",
@@ -55,6 +59,8 @@ def generate_launch_description():
                               description="ESP32 serial port; empty = use config/hardware.yaml"),
         DeclareLaunchArgument("auto_enable", default_value="false",
                               description="switch servo torque on automatically"),
+        DeclareLaunchArgument("command_lead", default_value="",
+                              description="seconds to send the trot early (servo lag); empty = quad_params.yaml"),
         DeclareLaunchArgument("payload_file", default_value="",
                               description="payload yaml; empty = installed config/payload.yaml"),
         OpaqueFunction(function=_nodes),
