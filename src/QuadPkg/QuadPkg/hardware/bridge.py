@@ -22,7 +22,8 @@ Debug topics (only for LOOKING at; nothing subscribes to them. Off with debug_to
                          what survived the limits + slew limiter, and the ticks actually sent
   /debug/servo_feedback  diagnostic_msgs/DiagnosticArray  per servo: what came back (ticks, angle,
                          error vs. sent, speed, load, voltage, temperature, current, online/torque)
-  /debug/joint_sent      sensor_msgs/JointState  angles actually sent (rad) -> plot against /joint_states
+  /debug/joint_sent      sensor_msgs/JointState  angles actually sent (rad), EVERY tick (50 Hz)
+                         -> plot against /joint_states, or `ros2 run QuadPkg lag_meter`
   Easiest way to read them:  ros2 run QuadPkg servo_monitor   (see docs/07_debug_topics.md)
 
 Safety
@@ -226,6 +227,12 @@ class HardwareBridge(Node):
         self.link.set_targets(ticks.tolist(), int(self.P("servo_speed")), int(self.P("servo_acc")))
         self.dbg_goal, self.dbg_ticks, self.dbg_vmax = goal, ticks, vmax
         self.dbg_target = self.target.copy()     # the exact target this tick used
+        if self.P("debug_topics"):                # every tick (50 Hz): lag_meter needs full rate
+            js = JointState()
+            js.header.stamp = self.get_clock().now().to_msg()
+            js.name = list(self.order)
+            js.position = self.sent.tolist()
+            self.dbg_sent_pub.publish(js)
         self.dbg_slewed = np.abs(want - step) > 1e-9
 
     def health(self):
@@ -296,13 +303,6 @@ class HardwareBridge(Node):
                 st.values = self._kv(controller_target_deg=ctrl, sent_deg="none", sent_ticks="none")
             cmd.status.append(st)
         self.dbg_cmd_pub.publish(cmd)
-
-        if sending:
-            js = JointState()
-            js.header.stamp = now
-            js.name = list(self.order)
-            js.position = self.sent.tolist()
-            self.dbg_sent_pub.publish(js)
 
         # ---- 2) FEEDBACK side: what the servos report back
         fb = DiagnosticArray()

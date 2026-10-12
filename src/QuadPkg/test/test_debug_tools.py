@@ -56,3 +56,18 @@ def test_check_robot_runs_and_flags_bad_payload(capsys):
     out = capsys.readouterr().out
     assert "outside the body footprint" in out and "to the right of the feet centre" in out
     assert rc2 >= 1
+
+
+def test_lag_math_finds_delay_and_reach():
+    import numpy as np
+    from QuadPkg.debug.lag_math import estimate_lag, odd_joints, recommend_gait
+    t = np.arange(0, 8, 0.02)
+    cmd = 0.2 * np.sin(2 * np.pi * t / 0.85)
+    late = 0.2 * 0.7 * np.sin(2 * np.pi * (t - 0.10) / 0.85)        # 100 ms late, 70 % reach
+    r = estimate_lag(t, cmd, t, late)
+    assert r["ok"] and abs(r["lag"] - 0.10) < 0.011 and abs(r["amp_ratio"] - 0.7) < 0.05
+    ok = estimate_lag(t, cmd, t, 0.2 * np.sin(2 * np.pi * (t - 0.04) / 0.85))
+    res = {"FL_KneeP": r, "FR_KneeP": ok}
+    assert any("FL_KneeP" in line for line in odd_joints(res))
+    worst, swing, period = recommend_gait(res, 0.85, 0.65)
+    assert abs(worst - 0.08) < 0.011 and period >= 1.2

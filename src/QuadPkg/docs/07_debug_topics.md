@@ -7,7 +7,7 @@ them and they never move the robot.
 |---|---|---|
 | `/debug/servo_command` | `diagnostic_msgs/DiagnosticArray` | **SENDING side**, per servo: what the controller asked, what survived the URDF limits and the slew limiter, and the exact ticks put on the wire. Or *why nothing is sent*. |
 | `/debug/servo_feedback` | `diagnostic_msgs/DiagnosticArray` | **RETURN side**, per servo: ticks it reports, angle, error vs. what was sent, speed, load, voltage, temperature, current, online/torque flags, with a WARN/ERROR level |
-| `/debug/joint_sent` | `sensor_msgs/JointState` | the sent angles (rad) in the same format as `/joint_states` → for plotting one against the other |
+| `/debug/joint_sent` | `sensor_msgs/JointState` | the sent angles (rad), every 50 Hz tick, same format as `/joint_states` → plotting, `lag_meter` |
 
 ### The path of one command (where each value is taken)
 
@@ -97,6 +97,35 @@ ros2 run QuadPkg servo_monitor --once
 ```
 > **Breakdown**
 > - Listen for 2 s, print one table, exit. Handy to paste into a message when asking for help.
+
+---
+
+## 1b. How late is each servo? `lag_meter`
+
+`servo_monitor` shows single moments. To see the **timing**, record a few seconds of walking:
+
+```bash
+ros2 run QuadPkg lag_meter --seconds 10
+```
+> **Breakdown**
+> - Start it, then press **W** in teleop and let the robot walk for the whole 10 s.
+> - It compares `/debug/joint_sent` (sent, every 50 Hz tick) with `/joint_states` (measured) and finds, per joint,
+>   the time shift where they match best.
+
+| Column | Meaning | Good |
+|---|---|---|
+| `lag ms` | how late the servo follows | similar for left/right twins |
+| `err now` | RMS error as `servo_monitor` sees it | small |
+| `err @lag` | error left once the delay is removed (sag, friction, weakness) | < 2° |
+| `reach %` | measured movement size / sent movement size | close to 100 % |
+
+An **equal** delay on all joints does no harm: the controller doesn't use feedback while walking,
+so the whole trot just happens a bit later. What hurts:
+* **reach % well below 100 on thighs/knees**: the swing is too short for the servos. Steps shrink and feet land late
+  compared with the other diagonal, so the body drops onto them (jerky, limping). Fix: longer `gait_period`
+  (it prints a suggestion), lower `step_height`.
+* **`ODD LEG:` lines**: one joint is much later or shorter than its twin, so that leg has its own problem
+  (power, connector, horn, binding). See [10](10_diagnose_parts.md).
 
 ---
 

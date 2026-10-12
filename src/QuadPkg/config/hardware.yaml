@@ -35,7 +35,7 @@ hardware_bridge:
     # +1 / -1. Find with:  ros2 run QuadPkg servo_tool jog <joint> 10
     direction:  [1.0, 1.0, 1.0,  1.0, -1.0, -1.0,  -1.0, 1.0, 1.0,  -1.0, -1.0, -1.0]
     # Measured with:  ros2 run QuadPkg servo_tool calib --write <this file>
-    offset_ticks: [73, -28, -20,  -15, -4, -45,  6, 83, 7,  -26, -120, -45]
+    offset_ticks: [48, 160, -42,  -54, -124, 164,  -23, 293, 12,  11, -266, -48]
     gear_ratio: [1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 1.0]
     tick_min: 0                # hard limits for any tick ever sent (servo range 0..4095)
     tick_max: 4095

@@ -194,6 +194,14 @@ ros2 run QuadPkg servo_monitor --once > snapshot.txt
 > - `--once`: listen 2 s, print one table, quit. `> snapshot.txt`: save it into a file instead of the screen.
 
 ```bash
+ros2 run QuadPkg lag_meter --seconds 10
+```
+> **Breakdown**
+> - `lag_meter`: listens for 10 s while you walk the robot forward, then prints per servo: how many ms late it follows
+>   the command, how much of the movement it really makes (`reach %`), and a suggested `gait_period`. Read-only.
+> - It also names any joint that is clearly later/shorter than its left-right twin (a problem in that leg).
+
+```bash
 ros2 run QuadPkg diagnose
 ```
 > **Breakdown**

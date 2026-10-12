@@ -21,7 +21,9 @@ quadruped_ws/                         ← the workspace (you run colcon build HE
         │       ├── diagnose.py                `diagnose`: publishers, /clock, tracking error
         │       ├── servo_monitor.py           `servo_monitor`: live table SENT vs FEEDBACK
         │       ├── monitor_table.py           the table maker (no ROS, tested)
-        │       └── check_robot.py             `check_robot`: mass/COM/torque/URDF checks
+        │       ├── check_robot.py             `check_robot`: mass/COM/torque/URDF checks
+        │       ├── lag_meter.py               `lag_meter`: how late / how far each servo follows
+        │       └── lag_math.py                its maths (no ROS, tested)
         ├── config/                   ← settings (installed; REBUILD after editing)
         │   ├── quad_params.yaml               how it walks
         │   ├── hardware.yaml                  serial port, servo IDs, directions, offsets, safety, debug

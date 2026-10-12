@@ -30,7 +30,3 @@ quad_controller:
     max_lin_accel: 0.3         # ZMP shift = a*h_com/g = 6 mm < 10 mm foot radius
     max_ang_accel: 1.5         # = max_lin_accel / 0.174 m foot radius from centre (1.7), rounded down
     cmd_deadband: 0.02         # step below ~5 mm is lost in servo sag; 0.02 m/s = 11 mm
-
-    # real robot only: send the trot this many seconds early so lagging servos land on time.
-    # Keep 0.0 here (Isaac has no lag); try it with:  ros2 launch QuadPkg robot.launch.py command_lead:=0.06
-    command_lead: 0.0

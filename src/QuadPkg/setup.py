@@ -41,6 +41,7 @@ setup(
             'diagnose = QuadPkg.debug.diagnose:main',          # publishers, clock, tracking error
             'servo_monitor = QuadPkg.debug.servo_monitor:main',  # live table: sent vs feedback per servo
             'check_robot = QuadPkg.debug.check_robot:main',    # mass / COM / torque / URDF checks (no ROS)
+            'lag_meter = QuadPkg.debug.lag_meter:main',        # how late / how far each servo follows
         ],
     },
 )
