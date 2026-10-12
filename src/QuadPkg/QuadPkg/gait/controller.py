@@ -49,6 +49,12 @@ class GaitParams:
     max_ang_accel: float = 2.0    # [rad/s^2]
     cmd_deadband: float = 0.01    # commands smaller than this count as "stop"
 
+    # --- real robot: knee servos answer later than thigh servos -------------
+    # Send the KNEE angles this many seconds earlier than the thigh/hip angles, so thigh
+    # and knee arrive TOGETHER and the foot follows the planned path (measure it with
+    # `ros2 run QuadPkg lag_meter`). Only used while walking. 0 = off (Isaac Sim).
+    knee_lead: float = 0.0
+
 
 def smoothstep(s):
     """0 -> 1 S-curve with zero slope at both ends (no jerks)."""
@@ -203,6 +209,13 @@ class GaitController:
         # ---- 4. inverse kinematics --------------------------------------------
         angles, bad = self.kin.solve(self._foot_targets(self.height, offsets))
         self.unreachable_count += len(bad)
+        if offsets is not None and p.knee_lead > 0.0:
+            # knees: use the pose from `knee_lead` seconds in the future
+            ahead = (self.phase + p.knee_lead / p.gait_period) % 1.0
+            future, _ = self.kin.solve(self._foot_targets(self.height, self._trot_offsets(ahead)))
+            for leg in self.kin.legs.values():
+                knee = leg.joint_names[2]
+                angles[knee] = future[knee]
         self.last_angles = angles
         return angles
 

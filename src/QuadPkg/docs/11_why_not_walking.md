@@ -84,9 +84,9 @@ Most common real-robot problem. In order of likelihood:
    - charged battery / 12 V.
 1b. **Servos can't finish the swing in time** (sim is fine, real robot jerks/limps). T2 shows knee `err°`
    around ±10–13°, flipping sign every swing on every leg, and the thighs never reach their forward angle.
-   Measure it: `ros2 run QuadPkg lag_meter` while walking forward. If thigh/knee `reach %` is well under 100
-   or the lag is > 20 % of the swing, give the servos more time: raise `gait_period` (it prints a value),
-   and/or lower `step_height` to 0.015. Re-run `lag_meter` to confirm `reach %` climbs toward 100.
+   Measure it: `ros2 run QuadPkg lag_meter` while walking forward. Knees later than thighs → set the
+   `knee_lead` it prints. Thigh/knee `reach %` well under 100 → more time per swing: higher `gait_period`,
+   `step_height: 0.015`. Re-run `lag_meter` after each change.
 2. **Foot doesn't lift.** Watch one leg: in swing the foot should rise `step_height` (2 cm). If it scuffs → `step_height: 0.025–0.03`
    (costs torque), or knees sagging (point 1).
 3. **Slipping feet.** Smooth floor + hard feet → rubber feet or test on a mat.

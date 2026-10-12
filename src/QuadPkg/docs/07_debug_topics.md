@@ -121,9 +121,20 @@ ros2 run QuadPkg lag_meter --seconds 10
 
 An **equal** delay on all joints does no harm: the controller doesn't use feedback while walking,
 so the whole trot just happens a bit later. What hurts:
-* **reach % well below 100 on thighs/knees**: the swing is too short for the servos. Steps shrink and feet land late
-  compared with the other diagonal, so the body drops onto them (jerky, limping). Fix: longer `gait_period`
-  (it prints a suggestion), lower `step_height`.
+* **knees later than thighs**: the foot swings forward before it is lifted and is still up when it should land.
+  Fix: `knee_lead` in `quad_params.yaml` (lag_meter prints the value). It sends only the knee angles that much earlier.
+* **reach % well below 100 on thighs/knees**: the swing is too short for the servos and steps shrink.
+  Fix: longer `gait_period`, lower `step_height`.
+
+To check one servo on its own, with no ROS in between (robot lifted, launch stopped):
+
+```bash
+ros2 run QuadPkg servo_tool step FR_KneeP 10
+```
+> **Breakdown**
+> - `step`: jumps that one joint 10° at once and times the response: when it starts moving, when it's half way, 90 %.
+> - Under ~120 ms to 90 % = the servo is fast; extra lag while walking then comes from weight/voltage.
+> - `--speed N --acc N`: try other values of the servo's speed/acceleration registers (0 = maximum).
 * **`ODD LEG:` lines**: one joint is much later or shorter than its twin, so that leg has its own problem
   (power, connector, horn, binding). See [10](10_diagnose_parts.md).
 

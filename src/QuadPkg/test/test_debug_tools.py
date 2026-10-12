@@ -60,7 +60,7 @@ def test_check_robot_runs_and_flags_bad_payload(capsys):
 
 def test_lag_math_finds_delay_and_reach():
     import numpy as np
-    from QuadPkg.debug.lag_math import estimate_lag, odd_joints, recommend_gait
+    from QuadPkg.debug.lag_math import estimate_lag, odd_joints, recommend
     t = np.arange(0, 8, 0.02)
     cmd = 0.2 * np.sin(2 * np.pi * t / 0.85)
     late = 0.2 * 0.7 * np.sin(2 * np.pi * (t - 0.10) / 0.85)        # 100 ms late, 70 % reach
@@ -69,5 +69,24 @@ def test_lag_math_finds_delay_and_reach():
     ok = estimate_lag(t, cmd, t, 0.2 * np.sin(2 * np.pi * (t - 0.04) / 0.85))
     res = {"FL_KneeP": r, "FR_KneeP": ok}
     assert any("FL_KneeP" in line for line in odd_joints(res))
-    worst, swing, period = recommend_gait(res, 0.85, 0.65)
-    assert abs(worst - 0.08) < 0.011 and period >= 1.2
+    thigh = estimate_lag(t, cmd, t, 0.2 * np.sin(2 * np.pi * (t - 0.03) / 0.85))
+    rec = recommend({"FL_ThighP": thigh, "FR_ThighP": thigh, "FL_KneeP": r, "FR_KneeP": r})
+    assert abs(rec["knee_lead"] - 0.07) < 0.011 and "FL_KneeP" in rec["low_reach"]
+
+
+def test_knee_lead_moves_only_knees_earlier():
+    import numpy as np
+    from QuadPkg.gait.controller import GaitController, GaitParams
+    from QuadPkg.kinematics.leg_kinematics import QuadKinematics
+    kin = QuadKinematics(URDF)
+
+    def run(lead):
+        c = GaitController(kin, GaitParams(gait_period=0.85, max_vx=0.1, knee_lead=lead))
+        c.reset({})
+        c.set_command(0.1, 0, 0)
+        out = [c.update(0.02) for _ in range(400)]
+        return (np.array([a["FR_KneeP"] for a in out]), np.array([a["FR_ThighP"] for a in out]))
+    k0, t0 = run(0.0)
+    k1, t1 = run(0.08)
+    assert np.allclose(t0, t1)                                   # thighs untouched
+    assert np.allclose(k1[300:350], k0[304:354], atol=1e-9)     # knees 4 ticks (80 ms) early

@@ -14,15 +14,19 @@ Output per joint:
   err @lag    RMS error left after removing the delay (deg) -- sag, friction, too weak
   reach %     measured swing size / sent swing size (100 % = full movement)
 
-What matters is NOT the lag itself (an equal delay on all joints does no harm) but:
-  * reach % well under 100 on thighs/knees -> the swing is too short for the servos: steps shrink,
-    feet land late compared with the other diagonal -> jerky, limping trot
-  * one joint much later / shorter than its left-right twin -> that servo or leg has its own problem
-Feedback is ~10-30 ms old when it arrives; the suggestion subtracts 20 ms for that.
+What matters is NOT the lag itself (the same delay on every joint does no harm, the whole
+trot just happens a bit later), but:
+  * knees later than thighs   -> the foot path gets bent: it swings forward before it is lifted
+                                 and is still up when it should land. Fix: knee_lead (it prints it)
+  * reach % well under 100    -> the swing is too short for the servos, steps shrink. Fix: longer
+                                 gait_period and/or lower step_height
+  * one joint worse than its left-right twin -> that servo or leg has its own problem
+Also run `ros2 run QuadPkg servo_tool step <joint> 10` (robot lifted) to see how fast ONE servo
+reacts on its own, without ROS in between.
 
 Options
   --seconds S         recording length (default 10)
-  --params FILE       quad_params.yaml to read gait_period / duty_factor (default: installed one)
+  --params FILE       quad_params.yaml to read gait_period / knee_lead (default: installed one)
 """
 import argparse
 import math
@@ -35,7 +39,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 import yaml
 
-from QuadPkg.debug.lag_math import estimate_lag, odd_joints, recommend_gait
+from QuadPkg.debug.lag_math import estimate_lag, odd_joints, recommend
 from QuadPkg.debug.monitor_table import ORDER
 
 
@@ -84,9 +88,10 @@ def _gait_params(path):
     try:
         with open(path, encoding="utf-8") as f:
             p = yaml.safe_load(f)["quad_controller"]["ros__parameters"]
-        return float(p.get("gait_period", 0.85)), float(p.get("duty_factor", 0.65))
+        return (float(p.get("gait_period", 0.85)), float(p.get("duty_factor", 0.65)),
+                float(p.get("knee_lead", 0.0)))
     except Exception:
-        return 0.85, 0.65
+        return 0.85, 0.65, 0.0
 
 
 def main(argv=None):
@@ -131,26 +136,32 @@ def main(argv=None):
         print(f"{j:11s} {r['lag'] * 1000:7.0f} {math.degrees(r['err_now']):7.1f}° "
               f"{math.degrees(r['err_at_lag']):8.1f}° {r['amp_ratio'] * 100:7.0f}%{flag}")
 
-    period, duty = _gait_params(a.params)
-    rec = recommend_gait(results, period, duty)
+    n_sent = len(cmd[ORDER[0]][0])
+    if n_meas > 1.3 * max(n_sent, 1):
+        print(f"\nWARNING: {n_meas} /joint_states messages but only {n_sent} commands -- is a SECOND node "
+              "publishing /joint_states?\n  Check:  ros2 topic info -v /joint_states   (must be 1 publisher: "
+              "hardware_bridge). Isaac Sim on the same ROS_DOMAIN_ID does this.")
+
+    period, duty, knee_lead_now = _gait_params(a.params)
+    rec = recommend(results)
     print()
     for line in odd_joints(results):
         print("ODD LEG: " + line + "  -> check that servo's power, connector, horn and binding")
     if rec is None:
         print("No thigh/knee moved enough. Record again while walking (W) for the whole time.")
     else:
-        worst, swing, new_period = rec
-        print(f"gait: gait_period {period} s, duty_factor {duty} -> each swing lasts {swing * 1000:.0f} ms")
-        print(f"worst servo lag ~{worst * 1000:.0f} ms = {100 * worst / swing:.0f}% of the swing "
-              "(comfortable: <= 20%)")
-        if new_period > 1.6:
-            print("The lag is too big to fix with timing alone (would need gait_period > 1.6 s).")
-            print("Check servo_speed / servo_acc in hardware.yaml (0 = fastest), battery voltage, and weight.")
-        elif new_period > period:
-            print(f"Suggested in config/quad_params.yaml:  gait_period: {new_period}   (then rebuild)")
+        print(f"thighs follow {rec['thigh_lag'] * 1000:.0f} ms late, knees {rec['knee_lag'] * 1000:.0f} ms late "
+              f"-> knees are {(rec['knee_lag'] - rec['thigh_lag']) * 1000:.0f} ms behind their thighs")
+        print(f"swing time now: {(1 - duty) * period * 1000:.0f} ms (gait_period {period}, duty_factor {duty})")
+        if abs(rec["knee_lead"] - knee_lead_now) >= 0.01:
+            print(f"SET in config/quad_params.yaml:  knee_lead: {rec['knee_lead']:.2f}   (now {knee_lead_now:.2f})")
         else:
-            print("Swing time is fine for these servos.")
-    print("Re-run lag_meter after a change: thigh/knee 'reach %' should get close to 100.")
+            print(f"knee_lead {knee_lead_now:.2f} already matches -- thigh and knee arrive together")
+        if rec["low_reach"]:
+            print("Short movements (reach < 85%): " + ", ".join(rec["low_reach"]))
+            print(f"  -> give the servos more time:  gait_period: {min(period + 0.15, 1.3):.2f}  "
+                  "and/or  step_height: 0.015")
+    print("Rebuild after editing, then run lag_meter again.")
     node.destroy_node()
     rclpy.shutdown()
     return 0

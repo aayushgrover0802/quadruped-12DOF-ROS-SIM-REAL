@@ -122,6 +122,13 @@ ros2 run QuadPkg servo_tool jog FL_KneeP 10
 > - Allowed range ±30°. Lift the robot off the ground first.
 
 ```bash
+ros2 run QuadPkg servo_tool step FR_KneeP 10
+```
+> **Breakdown**
+> - `step`: jumps one joint 10° instantly and prints how many ms the servo takes to start moving, reach 50 % and 90 %.
+>   Robot lifted. Shows if a servo is slow on its own.
+
+```bash
 ros2 run QuadPkg servo_tool calib --write ~/quadruped_ws/src/QuadPkg/config/hardware.yaml
 ```
 > **Breakdown**

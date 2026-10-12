@@ -57,20 +57,25 @@ def odd_joints(results, min_extra_lag=0.04, max_reach_gap=0.2):
     return lines
 
 
-def recommend_gait(results, gait_period, duty_factor, max_fraction=0.2, feedback_latency=0.02):
-    """Swing time needed so the worst thigh/knee lag is <= max_fraction of the swing.
+def recommend(results, min_reach=0.85):
+    """What to change, from the per-joint results. Returns a dict:
 
-    Returns (worst_lag, swing_now, suggested_gait_period) or None if nothing moved.
-    A pure, EQUAL delay on every joint would not matter (the controller is open-loop);
-    what hurts is that a slow servo cannot finish a short swing, so the step shrinks and
-    the foot lands late compared with the other legs. A longer swing fixes that.
+    thigh_lag, knee_lag : median lag of all thighs / all knees [s]
+    knee_lead           : suggested `knee_lead` = knee lag - thigh lag (>= 0, 10 ms steps)
+    low_reach           : thigh/knee joints that make less than `min_reach` of their movement
+
+    Why not the lag itself? The controller does not use feedback while walking, so if EVERY
+    joint is late by the same amount the whole trot simply happens a bit later -- harmless.
+    Harmful is (1) the knee arriving later than the thigh of the same leg: the foot then
+    swings forward before it is lifted and stays lifted after it should land, and (2) a joint
+    that never finishes its movement (reach < 100 %), so steps are shorter than planned.
     """
-    lags = [r["lag"] - feedback_latency for j, r in results.items()
-            if r["ok"] and ("ThighP" in j or "KneeP" in j)]
-    if not lags:
+    thighs = [r["lag"] for j, r in results.items() if r["ok"] and "ThighP" in j]
+    knees = [r["lag"] for j, r in results.items() if r["ok"] and "KneeP" in j]
+    if not thighs or not knees:
         return None
-    worst = max(0.0, max(lags))
-    swing_now = (1.0 - duty_factor) * gait_period
-    need_swing = worst / max_fraction
-    period = max(gait_period, need_swing / (1.0 - duty_factor))
-    return worst, swing_now, round(period + 0.049, 1)       # round UP to 0.1 s
+    t, k = float(np.median(thighs)), float(np.median(knees))
+    lead = round(min(max(k - t, 0.0), 0.15), 2)
+    low = [j for j, r in results.items()
+           if r["ok"] and ("ThighP" in j or "KneeP" in j) and r["amp_ratio"] < min_reach]
+    return {"thigh_lag": t, "knee_lag": k, "knee_lead": lead, "low_reach": low}

@@ -10,6 +10,8 @@ Commands
   hold                  torque ON on all 12, holding where they are now
   stand                 glide all joints to 0 rad (= standing pose) in 3 s
   jog JOINT DEG         move ONE joint by DEG degrees and back -> check `direction`
+  step JOINT DEG        jump ONE joint by DEG at once, time how fast the servo gets there
+                        [--speed N --acc N to test the servo's speed/acceleration registers]
   calib [--write FILE]  robot held in the standing pose -> measure offset_ticks
   middle ID|all         make the CURRENT position the servo's new middle (2048),
                         same as the web app button (stored inside the servo)
@@ -164,6 +166,59 @@ class Tool:
         print(f"If it moved the WRONG way, flip direction[{i}] for {a.joint} in hardware.yaml "
               f"(currently {self.map.direction[i]:+.0f}).")
 
+    def cmd_step(self, a):
+        """Instant step on one joint, record its response from the 50 Hz feedback."""
+        if a.joint not in self.map.order:
+            sys.exit(f"unknown joint {a.joint}; choose from {self.map.order}")
+        if not 2 <= abs(a.deg) <= 20:
+            sys.exit("use a step between 2 and 20 degrees")
+        i = self.map.index(a.joint)
+        self.configure()
+        ticks, _ = self.state(2)
+        start = self.map.ticks_to_joint(ticks)
+        end = start.copy()
+        end[i] += np.radians(a.deg)
+        t_start, t_end = self.map.joint_to_ticks(start).tolist(), self.map.joint_to_ticks(end).tolist()
+        self.link.torque(True)
+        print(f"{a.joint} (id {self.map.ids[i]}): step {a.deg:+.0f} deg, speed={a.speed} acc={a.acc}. "
+              "Robot LIFTED, legs free!")
+        for _ in range(25):                                   # 0.5 s: hold where it is
+            self.link.set_targets(t_start, a.speed, a.acc)
+            time.sleep(0.02)
+        q0 = self.map.ticks_to_joint([s.pos for s in self.link.state[1]])[i]
+        samples, t0 = [], time.monotonic()
+        last = self.link.n_state
+        while time.monotonic() - t0 < 0.8:                    # 0.8 s: the step
+            self.link.set_targets(t_end, a.speed, a.acc)
+            st = self.link.wait_state(timeout=0.05, newer_than=last)
+            if st is not None:
+                last = self.link.n_state
+                samples.append((time.monotonic() - t0, self.map.ticks_to_joint([s.pos for s in st[1]])[i]))
+        self.glide(end, start, 1.0)                           # back where it was
+        if len(samples) < 10:
+            sys.exit("too little feedback during the step")
+        target = q0 + np.radians(a.deg)
+        frac = [(t, (q - q0) / (target - q0)) for t, q in samples]
+
+        def first(level):
+            return next((t for t, f in frac if f >= level), None)
+
+        def ms(t):
+            return "never" if t is None else f"{t * 1000:.0f} ms"
+        t10, t50, t90 = first(0.1), first(0.5), first(0.9)
+        final = np.degrees(samples[-1][1] - q0)
+        print(f"  starts moving (10%): {ms(t10)}   half way (50%): {ms(t50)}   "
+              f"almost there (90%): {ms(t90)}   ended at {final:+.1f} of {a.deg:+.0f} deg")
+        print("  (includes ~10-30 ms of USB/feedback delay)")
+        if t90 is None:
+            print("  -> never got within 90%: blocked, too weak, or speed/acc registers limiting it")
+        elif t90 < 0.12:
+            print("  -> servo is FAST. If lag_meter shows much more while walking, the extra lag comes from "
+                  "load (weight) or voltage sag, not the servo itself.")
+        else:
+            print("  -> servo is SLOW even without load: try --acc 0 / --speed 0 vs other values, "
+                  "check voltage, compare with the same joint on another leg.")
+
     def cmd_calib(self, a):
         self.configure()
         print("Hold the robot in the STANDING pose (all joints 0, like in Isaac at start).")
@@ -224,6 +279,11 @@ def main(argv=None):
     j = sub.add_parser("jog")
     j.add_argument("joint")
     j.add_argument("deg", type=float)
+    st = sub.add_parser("step")
+    st.add_argument("joint")
+    st.add_argument("deg", type=float)
+    st.add_argument("--speed", type=int, default=0, help="goal speed register (0 = max)")
+    st.add_argument("--acc", type=int, default=0, help="acceleration register (0 = max)")
     c = sub.add_parser("calib")
     c.add_argument("--write", default=None)
     m = sub.add_parser("middle")

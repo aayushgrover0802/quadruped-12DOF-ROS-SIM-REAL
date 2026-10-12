@@ -18,9 +18,9 @@ quad_controller:
     start_mode: "stand"
 
     # trot
-    gait_period: 0.85          # swing 0.30 s: body tips ~10x less than at 1.2 s
+    gait_period: 1.0          # swing 0.30 s: body tips ~10x less than at 1.2 s
     duty_factor: 0.65          # peak foot force 0.60*m*g (vs 0.71 at 0.55), 0.13 s 4-foot recovery
-    step_height: 0.02          # flat floors. Carpet/uneven: 0.025 AND gait_period 1.0
+    step_height: 0.025          # flat floors. Carpet/uneven: 0.025 AND gait_period 1.0
     max_step_length: 0.06      # servo-speed limit is 63 mm forward at this timing
 
     # limits
@@ -30,3 +30,7 @@ quad_controller:
     max_lin_accel: 0.3         # ZMP shift = a*h_com/g = 6 mm < 10 mm foot radius
     max_ang_accel: 1.5         # = max_lin_accel / 0.174 m foot radius from centre (1.7), rounded down
     cmd_deadband: 0.02         # step below ~5 mm is lost in servo sag; 0.02 m/s = 11 mm
+
+    # real robot: knees answer later than thighs -> send knee angles this many seconds early so the
+    # foot follows the planned path. Value comes from `ros2 run QuadPkg lag_meter`. 0.0 = off (sim).
+    knee_lead: 0.0
